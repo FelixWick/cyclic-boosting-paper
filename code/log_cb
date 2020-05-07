@@ -1,0 +1,64 @@
+########## Describe calls:
+########## X_train.describe():
+              MedInc      HouseAge      AveRooms      ...           AveOccup      Latitude     Longitude
+count  15480.000000  15480.000000  15480.000000      ...       15480.000000  15480.000000  15480.000000
+mean       3.878820     28.587403      5.437817      ...           3.110072     35.634796   -119.576839
+std        1.887916     12.589381      2.555671      ...          11.976240      2.138442      2.008542
+min        0.499900      1.000000      0.846154      ...           0.750000     32.540000   -124.300000
+25%        2.574200     18.000000      4.444780      ...           2.429666     33.930000   -121.810000
+50%        3.547700     29.000000      5.233703      ...           2.815513     34.260000   -118.500000
+75%        4.762500     37.000000      6.065314      ...           3.273776     37.712500   -118.010000
+max       15.000100     52.000000    141.909091      ...        1243.333333     41.950000   -114.310000
+
+[8 rows x 8 columns]
+########## y_train.describe():
+ count    15480.000000
+mean         2.077707
+std          1.156056
+min          0.149990
+25%          1.204000
+50%          1.806000
+75%          2.662000
+max          5.000010
+dtype: float64
+##########11 [0 0 0 0 0 0 0 0]
+    MedInc  HouseAge  AveRooms  AveBedrms  Population  AveOccup  Latitude  Longitude
+0   3.3926      32.0  5.575439   1.063743      4951.0  2.895322     38.60    -121.30
+1   2.3571      52.0  6.008130   1.067751       907.0  2.457995     40.58    -124.26
+2   6.2885       6.0  6.909449   1.102362       664.0  2.614173     35.47    -118.92
+3   3.6618      36.0  4.483660   0.964052       774.0  2.529412     34.22    -118.43
+4   1.2778      42.0  3.461538   1.149798       890.0  3.603239     34.00    -118.28
+5   2.9085      21.0  3.962923   1.102508      1985.0  2.164667     36.60    -121.86
+6   3.7958      17.0  5.777159   1.064067      1035.0  2.883008     34.75    -120.18
+7   7.9887      15.0  6.837134   1.048860       873.0  2.843648     33.69    -117.80
+8   3.8750      51.0  4.968198   1.097173      1171.0  2.068905     33.77    -118.14
+9  10.9601      24.0  8.321809   1.333777      1730.0  2.300532     33.56    -117.81
+##########7 features before preparation: Index([u'MedInc', u'HouseAge', u'AveRooms', u'AveBedrms', u'Population',
+       u'AveOccup', u'Latitude', u'Longitude', u'avg_of_nearest_neighbors'],
+      dtype='object')
+##########7 features after preparation: Index([u'MedInc', u'HouseAge', u'AveRooms', u'AveBedrms', u'Population',
+       u'AveOccup', u'avg_of_nearest_neighbors', u'AveOccupPerRoom',
+       u'RatioBedrms'],
+      dtype='object')
+##########7 features before preparation: Index([u'MedInc', u'HouseAge', u'AveRooms', u'AveBedrms', u'Population',
+       u'AveOccup', u'Latitude', u'Longitude', u'avg_of_nearest_neighbors'],
+      dtype='object')
+##########7 features after preparation: Index([u'MedInc', u'HouseAge', u'AveRooms', u'AveBedrms', u'Population',
+       u'AveOccup', u'avg_of_nearest_neighbors', u'AveOccupPerRoom',
+       u'RatioBedrms'],
+      dtype='object')
+##########7 features before preparation: Index([u'MedInc', u'HouseAge', u'AveRooms', u'AveBedrms', u'Population',
+       u'AveOccup', u'Latitude', u'Longitude', u'avg_of_nearest_neighbors'],
+      dtype='object')
+##########7 features after preparation: Index([u'MedInc', u'HouseAge', u'AveRooms', u'AveBedrms', u'Population',
+       u'AveOccup', u'avg_of_nearest_neighbors', u'AveOccupPerRoom',
+       u'RatioBedrms'],
+      dtype='object')
+scoring on test data:
+########## Mean absolute deviation between prediction and y: 0.28917600206029404
+########## Mean squared error between prediction and y: 0.19735491650901335
+########## R squared: 0.8500410003131008
+scoring on train data:
+########## Mean absolute deviation between prediction and y: 0.281203664606845
+########## Mean squared error between prediction and y: 0.18321838944668142
+########## R squared: 0.8628994035916276
