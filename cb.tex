@@ -37,9 +37,9 @@ headings=normal]{scrartcl}
 
 
 %for ArXiv
-\author[1]{Felix Wick \thanks{felix.wick@jda.com}}
+\author[1]{Felix Wick \thanks{felix.wick@blueyonder.com}}
 \author[2]{Ulrich Kerzel \thanks{u.kerzel@iubh-fernstudium.de}}
-\author[1]{Michael Feindt \thanks{michael.feindt@jda.com}}
+\author[1]{Michael Feindt \thanks{michael.feindt@blueyonder.com}}
 \affil[1]{\small Blue Yonder GmbH (Karlsruhe, Germany)}
 \affil[2]{\small IUBH Internationale Hochschule (Erfurt, Germany)}
 
@@ -83,7 +83,7 @@ allowing a detailed understanding of how each individual prediction was made.
 %\end{IEEEkeywords}
 
 %arxiv
-%{DOI: }
+{DOI:  10.1109/ICMLA.2019.00067}
 
 
 \section{Introduction}
@@ -218,6 +218,7 @@ deviation (MAD) or mean squared error (MSE).
 
 
 \subsection{Multiplicative regression mode}
+\label{multiregmode}
 
 In the multiplicative regression mode of Cyclic Boosting, the target variable is in the
 range $Y \in [0,\infty)$. The predicted values of the target variable, denoted by
@@ -405,7 +406,7 @@ function as the inverse of the natural logarithm.
 In the additive regression mode, with the range of the target variable being
 $Y \in (-\infty, \infty)$, the formulae are modified such that:
 
-\begin{equation}
+\begin{equation} \label{summands}
 \hat{y}_i = \mu + \sum \limits_{j=1}^p f^k_j  \quad \text{with}\; k=\{ x_{j,i} \in b^k_j\}
 \end{equation}
 
@@ -618,6 +619,34 @@ weather, or other exogenous variables, for which the full potential of Cyclic Bo
 would come to fruition.
 
 
+\section{Discussion: Causality}
+\label{causality}
+
+Causal dependencies play an instrumental role in any data generation process, and having reflected the underlying causal structure of the data, at least partially, in a supervised machine learning model is therefore beneficial for the generalization of the model and crucial for the interpretability of the learned correlations in terms of causal what-if scenarios for potential interventions \cite{PearlCausality,PearlML}.
+
+\subsection{Individual causal effects}
+\label{causalinf}
+
+The estimation of individual causal effects, suffering from the problem of counterfactuals, needs a method capable of generalizations by means of sample attributes, which is one of the key strengths of machine learning. In the sense of potential outcomes \cite{Rubin}, a previously trained supervised machine learning model can be used to predict what-if scenarios for different values of one of its features.
+
+Instead of the detour via two separate predictions, a direct prediction of absolute individual causal effects can be achieved with a machine learning algorithm capable of processing negative sample weights by subtracting one of the two potential outcome or what-if groups statistically from the other in the training. We call this technique statistical background subtraction. Due to its intrinsic feature binning, Cyclic Boosting in its additive regression mode (with adapted summand uncertainties) is ideally suited for this purpose: The external weights reflecting the respective membership to the two what-if groups ($+1$ and $-1$ in the case of certain memberships, positive and negative real values in the case of statistically estimated memberships \cite{Pivk_2005,PhysRevD.84.012003,PhysRevD.86.032007}), are simply applied to the sums over all samples in each feature bin in eqn. \ref{factors}, corresponding to the filling of the feature summand histograms. The accordingly weighted global average $\mu$ in eqn. \ref{summands} then corresponds to the average causal effect.
+
+As an example, we look at the prediction of the individual causal effects of personalized coupons on customer demand (in terms of revenue) from the perspective of the retailer, and consider the simple case where unconfounded data from past random coupon assignments are available for the model training (see sec. \ref{confounding} for a discussion of confounding). Each training sample then represents an individual customer, the values $+1$ and $-1$ are used as sample weights for customers that did or did not receive a coupon, respectively, and the target is the corresponding revenue from that customer in some defined time period, e.g., a week. The resulting predictions of this model then correspond to the absolute individual causal effects of coupon sending on revenue. Note that this effect can be both positive or negative, an example for the latter being customers that would have bought also without coupon for a higher price.
+
+Another benefit of the proposed combination of machine learning with statistical background subtraction, namely the focus of the model training on the causal effect to be learned, can be seen in our couponing example when considering that most of the customers just ignore a coupon completely, for instance by not showing any demand in the time period at hand, no matter if they received a coupon for it or not. Due to the random coupon sending, these customers are present to the same extent in both groups (with weights $+1$ and $-1$, respectively) of the data set used for the training, and are thus, thanks to the statistical background subtraction, effectively ignored in the model. In turn, the model can focus on learning the causal effect of the intervention on the target, rather than mainly learning the general dependencies of the target.
+
+\subsection{Confounding}
+\label{confounding}
+
+There is one issue though with this approach of predicting individual causal effects with machine learning: Since the dependencies exploited by machine learning methods are merely statistical, the underlying causal structures of the data are not necessarily reflected in the learned model, because confounding effects can lead to spurious correlations overlaying the causal dependencies both between the different features and between these and the target.
+
+The safest and most direct way to get rid of any confounding affecting an examined causal effect is via random assignment of the variable representing the cause, also known as randomized controlled trials \cite{RCT}. In case random assignment is not possible in a study or you are left with pure observational rather than interventional data, there is the need for a statistical method to avoid confounding of the data used for the training of the machine learning model, one example being independence weighting by means of inverse propensity scores \cite{propensity}. For this, each input sample for the training is weighted by the inverse of the corresponding propensity score value, which can, for example, be calculated by a separate machine learning model trained on the observational values of the variable representing the cause and containing all potential confounders as features.
+
+Rather than eliminating confounding in the data, Cyclic Boosting also allows to impose causal assumptions during the model training process itself, either via exploiting the order of features, as mentioned in sec. \ref{multiregmode}, or by utilizing feature-specific smoothing functions over the factors for the different bins, in order to restrict the learning of the dependency between the target and potentially confounding or confounded features to defined parametric forms, e.g., monotonous functions. For potential confounders, the idea is to enforce the model to describe specific causal effects by other features, namely the true causes. For example, yearly seasonality in a demand forecasting model could be smoothed by a sinusoidal curve, leaving the description of distinct peaking structures to other features like holidays or promotions. Group-by smoothing can be used for two-dimensional features consisting of a cofounder and an interventional variable to stratify the confounders. The restriction of interventional features to specific functional forms, for example an exponential price-demand elasticity in retail demand forecasting, can also help to extrapolate beyond the range of the observations in the training data.
+
+Besides the use case of causal inference described in sec. \ref{causalinf}, such incorporation of causal assumptions into a supervised machine learning model is also beneficial in terms of general forecasting quality, because it can improve the generalizability of the learned model. For a discussion of temporal confounding in time series forecasting see \cite{wick2021demand}.
+
+
 \section{Conclusion}
 
 A new machine learning algorithm, called Cyclic Boosting, was presented, which can be
@@ -635,11 +664,16 @@ enables the modeling of hierarchical causal dependencies and the prediction of r
 effects in the data. Thereby, overfitting is effectively avoided by means of
 regularization and smoothing extensions.
 
+
 \section*{}
-Accepted at ICMLA 2019.
+Published at ICMLA 2019.
 
 \noindent
-© 2020 IEEE. Personal use of this material is permitted. Permission from IEEE must be obtained for all other uses, in any current or future media, including reprinting/republishing this material for advertising or promotional purposes, creating new collective works, for resale or redistribution to servers or lists, or reuse of any copyrighted component of this work in other works. 
+\copyright 2020 IEEE. Personal use of this material is permitted. Permission from IEEE must be obtained for all other uses, in any current or future media, including reprinting/republishing this material for advertising or promotional purposes, creating new collective works, for resale or redistribution to servers or lists, or reuse of any copyrighted component of this work in other works. 
+
+\noindent
+Compared to the ICMLA paper (v2), we added (in v3) the discussion about causality in sec. \ref{causality}.
+
 
 \bibliography{cb}
 \bibliographystyle{ieeetr}
